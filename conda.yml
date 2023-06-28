@@ -1,0 +1,12 @@
+name: nlength
+channels:
+  - defaults
+dependencies:
+  - pip
+  - python>=3
+  - pip:
+    - numpy
+    - pandas
+    - scipy
+    - statsmodels
+    - matplotlib
