@@ -1,3 +1,4 @@
+import sys
 import os
 import numpy as np
 import pandas as pd
@@ -67,7 +68,14 @@ parcel_set_map = {
     'RH': 'func_parcels',
 }
 experiments = (1, 2)
-base_path = '../../data/fMRI_nlength/casto'
+
+try:
+    with open('data_path.txt', 'r') as f:
+        base_path = f.read().strip()
+except FileNotFoundError:
+    sys.stderr.write('Data path not set. Run `python -m nlength.set_data_path` before running any other scripts.\n')
+    sys.stderr.flush()
+    exit()
 
 LENGTH2X = {
     1: 0.,
@@ -90,17 +98,17 @@ for parcel_set in parcel_set_map:
     parcel_set_path = parcel_set_map[parcel_set]
     for experiment in experiments:
         if experiment == 1:
-            df = pd.read_csv(os.path.join(base_path, 'no_npmod_FINAL', 'nlength_con_n16', parcel_set_path, 'mROI_NlengthEFFECT_langLOC',
+            df = pd.read_csv(os.path.join(base_path, 'main', 'nlength_con_n16', parcel_set_path, 'mROI_NlengthEFFECT_langLOC',
                              'spm_ss_mROI_data.details.EffectSize.csv'))
             df = df[df.Subject != '430_FED_20170523b_3T2_PL2017']  # Drop repeated session by subject 430
             lengths = [1, 2, 4, 6, 12]  # Length 3 condition missing
         else:
             df = []
             for subj_set in ('old_subjects_n25', 'new_subjects_n15'):
-                df.append(pd.read_csv(os.path.join(base_path, 'no_npmod_FINAL', subj_set, parcel_set_path, 'mROI_NlengthEFFECT_langLOC',
+                df.append(pd.read_csv(os.path.join(base_path, 'main', subj_set, parcel_set_path, 'mROI_NlengthEFFECT_langLOC',
                                  'spm_ss_mROI_data.details.EffectSize.csv')))
                 if subj_set == 'old_subjects_n25':
-                    df.append(pd.read_csv(os.path.join(base_path, 'no_npmod_FINAL', subj_set, parcel_set_path, 'mROI_NlengthEFFECT_langrun1LOC',
+                    df.append(pd.read_csv(os.path.join(base_path, 'main', subj_set, parcel_set_path, 'mROI_NlengthEFFECT_langrun1LOC',
                                  'spm_ss_mROI_data.details.EffectSize.csv')))
             df = pd.concat(df, axis=0)
             lengths = [1, 2, 3, 4, 6, 12]
@@ -312,8 +320,9 @@ for parcel_set in parcel_set_map:
                 S_v_N = D_C[:,-1] - D_J[:,0]
                 J_v_W = D_J[:,-1] - D_C[:,0]
                 J_v_N = D_J[:,-1] - D_J[:,0]
+                S_v_W_v_J_v_N = S_v_W - J_v_N
             else:
-                S_v_N = J_v_W = J_v_N = None
+                S_v_N = J_v_W = J_v_N = S_v_W_v_J_v_N = None
 
             _out['C'] = C
             _out['C1412'] = C1412
@@ -339,6 +348,7 @@ for parcel_set in parcel_set_map:
                 _out['S_v_N'] = S_v_N
                 _out['J_v_W'] = J_v_W
                 _out['J_v_N'] = J_v_N
+                _out['S_v_W_v_J_v_N'] = S_v_W_v_J_v_N
 
             out.append(_out)
 
@@ -349,9 +359,9 @@ for parcel_set in parcel_set_map:
     # 6 words experiment
 
     paths = [
-        os.path.join(base_path, 'no_npmod_FINAL', '6words_n20', parcel_set_path, 'mROI_6wordsEFFECT_langLOC',
+        os.path.join(base_path, 'main', '6words_n20', parcel_set_path, 'mROI_6wordsEFFECT_langLOC',
                      'spm_ss_mROI_data.details.EffectSize.csv'),
-        os.path.join(base_path, 'no_npmod_FINAL', '6words_n20', parcel_set_path, 'mROI_6wordsEFFECT_aliceLOC',
+        os.path.join(base_path, 'main', '6words_n20', parcel_set_path, 'mROI_6wordsEFFECT_aliceLOC',
                      'spm_ss_mROI_data.details.EffectSize.csv'),
     ]
     lengths = [1, 2, 3, 4, 5, 6, 8, 10, 12]

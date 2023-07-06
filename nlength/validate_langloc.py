@@ -1,10 +1,17 @@
+import sys
 import os
 import numpy as np
 import pandas as pd
 from scipy.stats import ttest_1samp
 from statsmodels.stats.multitest import fdrcorrection
 
-path_base = '../../data/fMRI_nlength/casto/no_npmod_FINAL/'
+try:
+    with open('data_path.txt', 'r') as f:
+        base_path = os.path.join(f.read().strip(), 'main')
+except FileNotFoundError:
+    sys.stderr.write('Data path not set. Run `python -m nlength.set_data_path` before running any other scripts.\n')
+    sys.stderr.flush()
+    exit()
 
 expts = [
     '6words_n20',
@@ -16,7 +23,7 @@ expts = [
 contrasts = {}
 for expt in expts:
     for localizer in ('lang', 'alice'):
-        path = '%s%s/func_parcels/mROI_%sEFFECT_%sLOC/spm_ss_mROI_data.csv' % (path_base, expt, localizer, localizer)
+        path = '%s%s/func_parcels/mROI_%sEFFECT_%sLOC/spm_ss_mROI_data.csv' % (base_path, expt, localizer, localizer)
         if os.path.exists(path):
             df = pd.read_csv(path)
             df = df.drop_duplicates(['Subject', 'ROI', 'Effect'])
@@ -44,7 +51,7 @@ for ROI in contrasts:
     out = ttest_1samp(x, 0)
     _t = out.statistic
     _p = out.pvalue
-    _df = out.df
+    _df = out._df
     _d = x.mean() / x.std()
 
     t.append(_t)

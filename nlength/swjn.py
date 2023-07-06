@@ -1,11 +1,14 @@
+import sys
 import os
 import numpy as np
 import pandas as pd
-from scipy.stats import ttest_1samp
+from scipy.stats import sem, ttest_1samp
 from statsmodels.stats.multitest import fdrcorrection
 import matplotlib
 from matplotlib import pyplot as plt
 from mpl_toolkits.axes_grid1 import Divider, Size
+
+from nlength.signif_table import correct_p, get_network_fdr, get_stars
 
 def map_effect(x):
     y = x.split('_')[-1]
@@ -19,17 +22,22 @@ def map_effect(x):
         return 'N'
     return x
 
-
-base_path = '../../data/fMRI_nlength/casto'
+try:
+    with open('data_path.txt', 'r') as f:
+        base_path = f.read().strip()
+except FileNotFoundError:
+    sys.stderr.write('Data path not set. Run `python -m nlength.set_data_path` before running any other scripts.\n')
+    sys.stderr.flush()
+    exit()
 
 df_fed_exp1 = pd.read_csv(os.path.join(base_path, 'fed10_data/SWJNV1_results.csv'), sep=',\s?').sort_values(['Subject', 'ROI'])
 df_fed_exp2 = pd.read_csv(os.path.join(base_path, 'fed10_data/SWJNV2_results.csv'), sep=',\s?').sort_values(['Subject', 'ROI'])
 df_curr = []
 for subj_set in ('old_subjects_n25', 'new_subjects_n15'):
-    df_curr.append(pd.read_csv(os.path.join(base_path, 'no_npmod_FINAL', subj_set, 'func_parcels', 'mROI_NlengthEFFECT_langLOC',
+    df_curr.append(pd.read_csv(os.path.join(base_path, 'main', subj_set, 'func_parcels', 'mROI_NlengthEFFECT_langLOC',
                      'spm_ss_mROI_data.details.EffectSize.csv')))
     if subj_set == 'old_subjects_n25':
-        df_curr.append(pd.read_csv(os.path.join(base_path, 'no_npmod_FINAL', subj_set, 'func_parcels', 'mROI_NlengthEFFECT_langrun1LOC',
+        df_curr.append(pd.read_csv(os.path.join(base_path, 'main', subj_set, 'func_parcels', 'mROI_NlengthEFFECT_langrun1LOC',
                      'spm_ss_mROI_data.details.EffectSize.csv')))
 df_curr = pd.concat(df_curr, axis=0)
 df_curr = df_curr[~df_curr.Effect.str.contains('-')]
@@ -47,19 +55,75 @@ fROIs = {
 
 # Report tests of S > N
 
-out = []
+df = []
 for i in range(1, 7):
-    for exp, df in zip(('fed_exp1', 'fed_exp2', 'current'), (df_fed_exp1, df_fed_exp2, df_curr)):
-        s = df[(df.ROI == i) & (df.Effect == 'S')].EffectSize.values
-        n = df[(df.ROI == i) & (df.Effect == 'N')].EffectSize.values
-        contrasts = s - n
-        t, p = ttest_1samp(contrasts, 0.)
-        d = contrasts.mean() / contrasts.std(ddof=1)
-        out.append((exp, fROIs[i], t, p, d))
+    for exp, _df in zip(('fed_exp1', 'fed_exp2', 'current'), (df_fed_exp1, df_fed_exp2, df_curr)):
+        contrasts = {}
+        contrasts['S'] = _df[(_df.ROI == i) & (_df.Effect == 'S')].EffectSize.values
+        contrasts['W'] = _df[(_df.ROI == i) & (_df.Effect == 'W')].EffectSize.values
+        contrasts['J'] = _df[(_df.ROI == i) & (_df.Effect == 'J')].EffectSize.values
+        contrasts['N'] = _df[(_df.ROI == i) & (_df.Effect == 'N')].EffectSize.values
+        contrasts['S_v_W'] = contrasts['S'] - contrasts['W']
+        contrasts['S_v_N'] = contrasts['S'] - contrasts['N']
+        contrasts['J_v_N'] = contrasts['J'] - contrasts['N']
+        contrasts['S_v_W_v_J_v_N'] = contrasts['S_v_W'] - contrasts['J_v_N']
+        for contrast in contrasts:
+            vals = contrasts[contrast]
+            t, p = ttest_1samp(vals, 0.)
+            beta = vals.mean()
+            se = sem(vals)
+            d = beta / vals.std(ddof=1)
+            df.append((exp, contrast, fROIs[i], beta, se, t, p, d))
 
-out = pd.DataFrame(out, columns=['Experiment', 'fROI', 't', 'p', 'd'])
-out['p_fdr'] = fdrcorrection(out.p, method='negcorr')[1]
-out.to_csv('swjn.csv')
+df = pd.DataFrame(df, columns=['experiment', 'contrast', 'fROI', 'beta', 'se', 't', 'p', 'd'])
+df.fROI = pd.Categorical(
+    df.fROI,
+    [
+        'all',
+        'LIFGorb',
+        'LIFGtri',
+        'LIFG',
+        'LMFG',
+        'LTP',
+        'LaSTS',
+        'LAntTemp',
+        'LpSTS',
+        'LPostTemp',
+        'LTPJ',
+        'LAngG',
+        'RIFGorb',
+        'RIFG',
+        'RMFG',
+        'RAntTemp',
+        'RPostTemp',
+        'RAngG',
+        'IFGorb',
+        'IFG',
+        'MFG',
+        'AntTemp',
+        'PostTemp',
+        'AngG',
+        'LIFGorb_v_LAngG',
+        'LIFG_v_LAngG',
+        'LMFG_v_LAngG',
+        'LAntTemp_v_LAngG',
+        'LPostTemp_v_LAngG',
+        'LIFGorb_v_LPostTemp',
+        'LIFG_v_LPostTemp'
+    ]
+)
+df['network_fdr'] = df[['fROI']].apply(get_network_fdr, axis=1)
+out_p = df.groupby(['experiment', 'network_fdr', 'contrast']) \
+        .apply(correct_p)[['experiment', 'network_fdr', 'contrast', 'fROI', 'p_fdr']]
+df = pd.merge(df, out_p, on=['experiment', 'network_fdr', 'contrast', 'fROI'])
+df['signif'] = df['p_fdr'].apply(get_stars)
+df.beta = df.beta.astype(float).round(2)
+df.se = df.se.astype(float).round(2)
+df.t = df.t.astype(float).round(2)
+df.p = np.maximum(df.p.astype(float), 0.001).round(3)
+df.p_fdr = np.maximum(df.p_fdr.astype(float), 0.001).astype(float).round(3)
+df = df.sort_values(['experiment', 'contrast', 'fROI'])
+df.to_csv('swjn.csv')
 
 
 # Plot

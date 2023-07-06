@@ -1,3 +1,4 @@
+import sys
 import os
 import re
 import numpy as np
@@ -57,8 +58,13 @@ for parcel_set in ('evlab', 'PDD', 'RH'):
             'RAngG'
         ]
 
-    df1 = pd.read_csv('contrasts/%s_nlength1_contrasts.csv' % parcel_set)
-    df2 = pd.read_csv('contrasts/%s_nlength2_contrasts.csv' % parcel_set)
+    try:
+        df1 = pd.read_csv('contrasts/%s_nlength1_contrasts.csv' % parcel_set)
+        df2 = pd.read_csv('contrasts/%s_nlength2_contrasts.csv' % parcel_set)
+    except FileNotFoundError:
+        sys.stderr.write('Contrast files not found. Run `python -m nlength.contrasts` before running this script.\n')
+        sys.stderr.flush()
+        exit()
 
     # Main result
 

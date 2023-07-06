@@ -45,7 +45,8 @@ for (parcel_set in c('evlab', 'PDD', 'RH')) {
                 'S_v_W',
                 'S_v_N',
                 'J_v_W',
-                'J_v_N'
+                'J_v_N',
+                'S_v_W_v_J_v_N'
             )
         } else {
             contrasts = c(
@@ -279,7 +280,8 @@ for (experiment in c(1, 2, 3)) {
             'S_v_W',
             'S_v_N',
             'J_v_W',
-            'J_v_N'
+            'J_v_N',
+            'S_v_W_v_J_v_N'
         )
     } else {
         source_contrasts = c(
@@ -296,7 +298,6 @@ for (experiment in c(1, 2, 3)) {
         contrast = paste0(source_contrast, '_diff')
 
         all = NULL
-        print(source_contrast)
 
         for (fROI_src in fROIs) {
             fROI_a = paste0('L', fROI_src)
