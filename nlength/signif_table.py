@@ -126,7 +126,7 @@ if __name__ == '__main__':
     args = argparser.parse_args()
     cols = ['parcel_set', 'experiment', 'contrast', 'fROI', 'conv', 'sing', 'beta', 'se', 't', 'p']
     rows = []
-    for parcel_set in ['evlab', 'PDD', 'RH', 'betweenhemispheres']:
+    for parcel_set in ['evlab', 'PDD', 'RH', 'betweenhemispheres', 'PDDanat']:
         for experiment in ['nlength1', 'nlength2', '6words', 'betweengroups']:
             directory = 'lrt'
             paths = sorted([os.path.join(directory, x) for x in os.listdir(directory)
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     df['p'] = df['p'].astype(float)
     df['network_fdr'] = df[['fROI']].apply(get_network_fdr, axis=1)
     df_p = df.groupby(['parcel_set', 'experiment', 'network_fdr', 'contrast']) \
-        .apply(correct_p)[['parcel_set', 'experiment', 'network_fdr', 'contrast', 'fROI', 'p_fdr']]
+        .apply(correct_p)[['parcel_set', 'experiment', 'network_fdr', 'contrast', 'fROI', 'p_fdr']].reset_index(drop=True)
     df = pd.merge(df, df_p, on=['parcel_set', 'experiment', 'network_fdr', 'contrast', 'fROI'])
     df['signif'] = df['p_fdr'].apply(get_stars)
     df.beta = df.beta.astype(float).round(2)
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     df.t = df.t.astype(float).round(2)
     df.p = np.maximum(df.p.astype(float), 0.001).round(3)
     df.p_fdr = np.maximum(df.p_fdr.astype(float), 0.001).astype(float).round(3)
-    df.parcel_set = pd.Categorical(df.parcel_set, ['evlab', 'PDD', 'RH', 'betweenhemispheres'])
+    df.parcel_set = pd.Categorical(df.parcel_set, ['evlab', 'PDD', 'RH', 'betweenhemispheres', 'PDDanat'])
     df.fROI = pd.Categorical(
         df.fROI,
         [

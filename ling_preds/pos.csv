@@ -1,0 +1,25 @@
+Part of Speech,Length,Mean,2.5%,97.5%
+Adjective/Adverb,1,0.08,0.05,0.11
+Function Word,1,0.19,0.15,0.23
+Noun,1,0.37,0.32,0.42
+Verb,1,0.36,0.31,0.41
+Adjective/Adverb,2,0.09,0.06,0.12
+Function Word,2,0.36,0.31,0.41
+Noun,2,0.29,0.24,0.34
+Verb,2,0.26,0.21,0.29
+Adjective/Adverb,3,0.13,0.10,0.17
+Function Word,3,0.48,0.44,0.54
+Noun,3,0.24,0.19,0.28
+Verb,3,0.15,0.11,0.19
+Adjective/Adverb,4,0.16,0.13,0.20
+Function Word,4,0.43,0.39,0.48
+Noun,4,0.27,0.22,0.32
+Verb,4,0.14,0.10,0.17
+Adjective/Adverb,6,0.11,0.08,0.14
+Function Word,6,0.50,0.44,0.56
+Noun,6,0.27,0.23,0.32
+Verb,6,0.12,0.09,0.16
+Adjective/Adverb,12,0.09,0.06,0.12
+Function Word,12,0.45,0.40,0.51
+Noun,12,0.29,0.24,0.34
+Verb,12,0.17,0.13,0.21

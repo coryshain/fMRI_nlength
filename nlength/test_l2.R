@@ -10,8 +10,8 @@ pr = function(x, buffer=NULL) {
 library(lme4)
 
 
-for (parcel_set in c('betweenhemispheres', 'evlab', 'PDD', 'RH')) {
-    for (experiment in c(1, 2, 3, 4)) {
+for (parcel_set in c('betweenhemispheres', 'evlab', 'PDD', 'RH', 'PDDanat')) {
+    for (experiment in c(1, 2, 3, 5)) {
         if (experiment < 3) {
             df_name = paste0('nlength', experiment)
         } else if (experiment == 3) {

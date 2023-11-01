@@ -32,6 +32,7 @@ PDD_parcels = [
 fROIs = {
     'evlab': evlab_parcels,
     'PDD': PDD_parcels,
+    'PDDanat': PDD_parcels,
     'RH': evlab_parcels,
 }
 
@@ -61,11 +62,13 @@ networks = {
         'RAngG',
     ],
 }
+networks['PDDanat'] = networks['PDD']
 
 parcel_set_map = {
     'evlab': 'func_parcels',
     'PDD': 'PDD_parcels',
     'RH': 'func_parcels',
+    'PDDanat': 'PDD_parcels_anat'
 }
 experiments = (1, 2)
 

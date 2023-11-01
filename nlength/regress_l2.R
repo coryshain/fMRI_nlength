@@ -10,7 +10,7 @@ pr = function(x, buffer=NULL) {
 library(lme4)
 
 
-for (parcel_set in c('evlab', 'PDD', 'RH')) {
+for (parcel_set in c('evlab', 'PDD', 'RH', 'PDDanat')) {
     for (experiment in c(1, 2, 3)) {
         if (experiment < 3) {
             df_name = paste0('nlength', experiment)
@@ -105,7 +105,7 @@ contrasts = c(
 
 
 # Comparison between 6words and Nlength
-for (parcel_set in c('evlab', 'PDD', 'RH')) {
+for (parcel_set in c('evlab', 'PDD', 'RH', 'PDDanat')) {
     df_exp1 = read.table(paste0('contrasts/', parcel_set, '_nlength1_contrasts.csv'), header=TRUE, sep=',')
     df_exp2 = read.table(paste0('contrasts/', parcel_set, '_nlength2_contrasts.csv'), header=TRUE, sep=',')
     df_exp3 = read.table(paste0('contrasts/', parcel_set, '_6words_contrasts.csv'), header=TRUE, sep=',')

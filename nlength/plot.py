@@ -29,7 +29,7 @@ matplotlib.rcParams['font.sans-serif'] = "Arial"
 matplotlib.rcParams['font.family'] = "sans-serif"
 
 
-for parcel_set in ('evlab', 'PDD', 'RH'):
+for parcel_set in ('evlab', 'PDD', 'RH', 'PDDanat'):
     if parcel_set == 'evlab':
         fROIs = [
             'LIFGorb',
@@ -39,7 +39,7 @@ for parcel_set in ('evlab', 'PDD', 'RH'):
             'LPostTemp',
             'LAngG'
         ]
-    elif parcel_set == 'PDD':
+    elif parcel_set.startswith('PDD'):
         fROIs = [
             'LIFGorb',
             'LIFGtri',
