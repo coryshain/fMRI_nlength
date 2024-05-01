@@ -30,6 +30,7 @@ matplotlib.rcParams['font.family'] = "sans-serif"
 
 
 for parcel_set in ('evlab', 'PDD', 'RH', 'PDDanat'):
+    ylims = {'': {1: (-0.05, 1.1), 2: (-0.05, 0.35)}}
     if parcel_set == 'evlab':
         fROIs = [
             'LIFGorb',
@@ -40,6 +41,8 @@ for parcel_set in ('evlab', 'PDD', 'RH', 'PDDanat'):
             'LAngG'
         ]
     elif parcel_set.startswith('PDD'):
+        if parcel_set == 'PDDanat':
+            ylims['_tight'] = {1: (-0.05, 0.5), 2: (-0.02, 0.19)}
         fROIs = [
             'LIFGorb',
             'LIFGtri',
@@ -68,7 +71,7 @@ for parcel_set in ('evlab', 'PDD', 'RH', 'PDDanat'):
 
     # Main result
 
-    cmap = plt.get_cmap('viridis')
+    cmap = plt.get_cmap('terrain')
     hatches = [
         None,
         '\\\\\\\\',
@@ -78,6 +81,7 @@ for parcel_set in ('evlab', 'PDD', 'RH', 'PDDanat'):
         'xxxx',
         '++++'
     ]
+    colors = [cmap(i/len(hatches)) for i in range(len(hatches))]
     bar_width = 1./ 6 * 0.5
 
 
@@ -115,11 +119,13 @@ for parcel_set in ('evlab', 'PDD', 'RH', 'PDDanat'):
         ax.bar(
             r,
             mean,
-            color='w',
-            edgecolor=(0.6, 0.6, 0.6),
+            # color='w',
+            color=colors[i],
+            edgecolor='none',
+            # edgecolor=(0.6, 0.6, 0.6),
             width=bar_width,
             label='Overall' if fROI == 'all' else fROI,
-            hatch=hatches[i],
+            # hatch=hatches[i],
             linewidth=2
         )
 
@@ -128,18 +134,21 @@ for parcel_set in ('evlab', 'PDD', 'RH', 'PDDanat'):
             mean,
             yerr=err,
             fmt='none',
-            ecolor=(0.8, 0.8, 0.8),
-            capsize=4,
+            ecolor=colors[i],
+            # ecolor=(0.8, 0.8, 0.8),
+            capsize=0,
             capthick=2,
             linewidth=2
         )
 
     ax.set_xticks([])
     ax.set_xlim(-0.25, 0.75)
-    ax.set_ylim(-0.05, 1.1)
     ax.axhline(y=0, color='k', lw=0.5)
 
-    plt.savefig('plots/%s_overall1.png' % parcel_set)
+    for ylim_key in ylims:
+        ylim = ylims[ylim_key][1]
+        ax.set_ylim(ylim)
+        plt.savefig('plots/%s_overall1%s.png' % (parcel_set, ylim_key))
     plt.close('all')
 
 
@@ -189,11 +198,13 @@ for parcel_set in ('evlab', 'PDD', 'RH', 'PDDanat'):
         ax.bar(
             r,
             means,
-            color='w',
-            edgecolor=(0.6, 0.6, 0.6),
+            # color='w',
+            color=colors[i],
+            edgecolor='none',
+            # edgecolor=(0.6, 0.6, 0.6),
             width=bar_width,
             label='Overall' if fROI == 'all' else fROI,
-            hatch=hatches[i],
+            # hatch=hatches[i],
             linewidth=2
         )
 
@@ -202,17 +213,20 @@ for parcel_set in ('evlab', 'PDD', 'RH', 'PDDanat'):
             means,
             yerr=errs,
             fmt='none',
-            ecolor=(0.8, 0.8, 0.8),
-            capsize=4,
+            ecolor=colors[i],
+            # ecolor=(0.8, 0.8, 0.8),
+            capsize=0,
             capthick=2,
             linewidth=2
         )
 
-    ax.legend(loc='upper right', ncol=2)
+    ax.legend(bbox_to_anchor=(1,1.1), ncol=4, fontsize=20)
 
     ax.set_xticks([])
-    ax.set_ylim(-0.05, 0.35)
     ax.axhline(y=0, color='k', lw=0.5)
 
-    plt.savefig('plots/%s_overall2.png' % parcel_set)
+    for ylim_key in ylims:
+        ylim = ylims[ylim_key][2]
+        ax.set_ylim(ylim)
+        plt.savefig('plots/%s_overall2%s.png' % (parcel_set, ylim_key))
     plt.close('all')

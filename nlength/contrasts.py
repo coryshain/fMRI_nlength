@@ -99,6 +99,9 @@ def length2x(x):
 
 for parcel_set in parcel_set_map:
     parcel_set_path = parcel_set_map[parcel_set]
+    ylims = {'': (-0.68, 3.5)}
+    if parcel_set == 'PDDanat':
+        ylims['_tight'] = (-0.4, 1.35)
     for experiment in experiments:
         if experiment == 1:
             df = pd.read_csv(os.path.join(base_path, 'main', 'nlength_con_n16', parcel_set_path, 'mROI_NlengthEFFECT_langLOC',
@@ -286,12 +289,15 @@ for parcel_set in parcel_set_map:
 
             plt.subplots_adjust(left=0.3)
             plt.xlim(plot_basis.min() - 0.2, plot_basis.max() + 0.2)
-            plt.ylim((-0.68, 3.5))
 
             plt.xticks(xtick_pos, labels=xtick_labels)
-
             plt.gcf().set_size_inches((2, 3))
-            plt.savefig(os.path.join('plots', '%s_nlength%s_%s_plot.png' % (parcel_set, experiment, ROI)), dpi=300)
+
+            for ylim_key in ylims:
+                print(ylim_key)
+                ylim = ylims[ylim_key]
+                plt.ylim(ylim)
+                plt.savefig(os.path.join('plots', '%s_nlength%s_%s_plot%s.png' % (parcel_set, experiment, ROI, ylim_key)), dpi=300)
             plt.close('all')
 
             # Contrasts
@@ -512,10 +518,12 @@ for parcel_set in parcel_set_map:
         plt.subplots_adjust(left=0.3)
         plt.xticks(length2x([1, 2, 3, 4, 6, 12]), ['1', '2', '3', '4', '6', '12'])
         plt.xlim(-0.2, length2x(12) + 0.2)
-        plt.ylim((-0.68, 3.5))
-
         plt.gcf().set_size_inches((2, 3))
-        plt.savefig(os.path.join('plots', '%s_6words_%s_plot.png' % (parcel_set, ROI)), dpi=300)
+
+        for ylim_key in ylims:
+            ylim = ylims[ylim_key]
+            plt.ylim(ylim)
+            plt.savefig(os.path.join('plots', '%s_6words_%s_plot%s.png' % (parcel_set, ROI, ylim_key)), dpi=300)
         plt.close('all')
 
         columns = ['C%02d_WL24' % x for x in wl24_lengths]
